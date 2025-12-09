@@ -3,16 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5">
+    android:background="@color/bg_app">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@android:color/white"
-        android:padding="12dp"
-        android:elevation="4dp">
+        android:background="@color/white"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp">
 
         <EditText
             android:id="@+id/et_search"
@@ -20,46 +20,43 @@
             android:layout_height="40dp"
             android:layout_weight="1"
             android:background="@drawable/bg_search_rounded"
-            android:hint="🔍 搜索穿搭灵感..."
+            android:hint="🔍 搜索穿搭灵感"
+            android:textColorHint="@color/text_secondary"
             android:textSize="14sp"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
+            android:paddingHorizontal="16dp"
             android:singleLine="true"
-            android:imeOptions="actionSearch"
-            android:layout_marginEnd="12dp"/>
+            android:layout_marginEnd="16dp"/>
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="end">
-
             <TextView
                 android:id="@+id/tv_city"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="北京市"
                 android:textStyle="bold"
-                android:textColor="#333333"
+                android:textColor="@color/text_primary"
                 android:textSize="16sp"/>
-
             <TextView
                 android:id="@+id/tv_weather"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="22°C 晴"
-                android:textColor="#666666"
+                android:textColor="@color/text_secondary"
                 android:textSize="12sp"/>
         </LinearLayout>
-
     </LinearLayout>
+
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider_line"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingStart="4dp"
-        android:paddingEnd="4dp"
+        android:paddingHorizontal="8dp"
         android:paddingTop="8dp"
         android:clipToPadding="false"/>
-
 </LinearLayout>

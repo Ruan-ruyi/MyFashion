@@ -1,7 +1,6 @@
 package com.example.myfashion;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -9,6 +8,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat; // 引入这个库来获取 colors.xml 里的颜色
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -19,34 +19,47 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // 1. 绑定控件 (注意这里使用的是新布局中的 ID)
+        // 1. 绑定控件
         TextView tvLogin = findViewById(R.id.tv_tab_login);
         TextView tvRegister = findViewById(R.id.tv_tab_register);
         EditText etUser = findViewById(R.id.et_username);
         EditText etPwd = findViewById(R.id.et_password);
         EditText etPhone = findViewById(R.id.et_phone);
-        // 关键点：这里用的 ID 是 btn_action，不是 btn_login
         Button btnAction = findViewById(R.id.btn_action);
 
-        // 2. 处理“登录/注册” Tab 切换点击事件
+        // 2. 定义 Tab 切换逻辑
         View.OnClickListener tabListener = v -> {
             if (v.getId() == R.id.tv_tab_login) {
-                // 切换到登录模式
+                // === 切换到登录模式 ===
                 isLoginMode = true;
-                updateTabStyle(tvLogin, tvRegister);
+
+                // 样式调整：登录变黑(选中)，注册变灰(未选中)
+                updateTabStyle(tvLogin, true);
+                updateTabStyle(tvRegister, false);
+
                 etPhone.setVisibility(View.GONE); // 隐藏手机号
                 btnAction.setText("立即登录");
             } else {
-                // 切换到注册模式
+                // === 切换到注册模式 ===
                 isLoginMode = false;
-                updateTabStyle(tvRegister, tvLogin);
+
+                // 样式调整：注册变黑(选中)，登录变灰(未选中)
+                updateTabStyle(tvRegister, true);
+                updateTabStyle(tvLogin, false);
+
                 etPhone.setVisibility(View.VISIBLE); // 显示手机号
                 btnAction.setText("立即注册");
             }
         };
 
+        // 绑定点击事件
         tvLogin.setOnClickListener(tabListener);
         tvRegister.setOnClickListener(tabListener);
+
+        // 初始化默认状态（登录模式）
+        updateTabStyle(tvLogin, true);
+        updateTabStyle(tvRegister, false);
+
 
         // 3. 处理按钮点击事件 (登录或注册)
         btnAction.setOnClickListener(v -> {
@@ -90,14 +103,22 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    // 辅助方法：更新 Tab 的选中样式（变色、加粗）
-    private void updateTabStyle(TextView active, TextView inactive) {
-        active.setTextColor(Color.parseColor("#6200EE"));
-        active.getPaint().setFakeBoldText(true);
-        active.invalidate(); // 刷新绘制
-
-        inactive.setTextColor(Color.parseColor("#999999"));
-        inactive.getPaint().setFakeBoldText(false);
-        inactive.invalidate();
+    /**
+     * 辅助方法：更新 Tab 的选中样式
+     * 使用 colors.xml 中定义的颜色
+     * @param tab TextView 控件
+     * @param isActive 是否为选中状态
+     */
+    private void updateTabStyle(TextView tab, boolean isActive) {
+        if (isActive) {
+            // 选中状态：使用 text_primary (深色)，加粗
+            tab.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+            tab.getPaint().setFakeBoldText(true);
+        } else {
+            // 未选中状态：使用 text_secondary (浅色)，不加粗
+            tab.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
+            tab.getPaint().setFakeBoldText(false);
+        }
+        tab.invalidate(); // 刷新绘制
     }
 }

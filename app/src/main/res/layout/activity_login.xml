@@ -1,116 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#F0F2F5"
-    android:gravity="center">
+    android:background="@color/bg_app">
 
-    <ImageView
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:src="@mipmap/ic_launcher_round"
-        android:layout_marginBottom="20dp"
-        android:elevation="4dp"/>
+    <View
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:background="#E8EAF6"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="-100dp"
+        android:layout_marginEnd="-80dp"
+        android:rotation="45"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="My Fashion"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="#333"
-        android:layout_marginBottom="30dp"/>
-
-    <androidx.cardview.widget.CardView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="32dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="8dp"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp">
 
-        <LinearLayout
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:src="@mipmap/ic_launcher_round"
+            android:layout_gravity="center_horizontal"
+            android:elevation="8dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="My Fashion"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="40dp"/>
+
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="24dp">
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/white"
+            xmlns:app="http://schemas.android.com/apk/res-auto">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="20dp">
+                android:orientation="vertical"
+                android:padding="24dp">
 
-                <TextView
-                    android:id="@+id/tv_tab_login"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="登录"
+                    android:layout_marginBottom="24dp">
+                    <TextView
+                        android:id="@+id/tv_tab_login"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="登录"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:gravity="center"/>
+                    <TextView
+                        android:id="@+id/tv_tab_register"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="注册"
+                        android:textSize="18sp"
+                        android:textColor="@color/text_secondary"
+                        android:gravity="center"/>
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/et_username"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:hint="用户名"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingHorizontal="16dp"
+                    android:layout_marginBottom="16dp"/>
+
+                <EditText
+                    android:id="@+id/et_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:hint="密码"
+                    android:inputType="textPassword"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingHorizontal="16dp"
+                    android:layout_marginBottom="24dp"/>
+
+                <EditText
+                    android:id="@+id/et_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:hint="手机号"
+                    android:inputType="phone"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingHorizontal="16dp"
+                    android:visibility="gone"
+                    android:layout_marginBottom="24dp"/>
+
+                <Button
+                    android:id="@+id/btn_action"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="立即登录"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#6200EE"
-                    android:gravity="center"/>
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
-                    android:background="#DDD"/>
-
-                <TextView
-                    android:id="@+id/tv_tab_register"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="注册"
-                    android:textSize="18sp"
-                    android:textColor="#999"
-                    android:gravity="center"/>
-            </LinearLayout>
-
-            <EditText
-                android:id="@+id/et_username"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:hint="用户名"
-                android:background="@android:drawable/edit_text"
-                android:drawableStart="@android:drawable/ic_menu_myplaces"
-                android:drawablePadding="10dp"
-                android:layout_marginBottom="12dp"/>
-
-            <EditText
-                android:id="@+id/et_password"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:hint="密码"
-                android:inputType="textPassword"
-                android:background="@android:drawable/edit_text"
-                android:drawableStart="@android:drawable/ic_lock_idle_lock"
-                android:drawablePadding="10dp"
-                android:layout_marginBottom="12dp"/>
-
-            <EditText
-                android:id="@+id/et_phone"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:hint="手机号 (仅注册)"
-                android:inputType="phone"
-                android:background="@android:drawable/edit_text"
-                android:drawableStart="@android:drawable/ic_menu_call"
-                android:drawablePadding="10dp"
-                android:visibility="gone"
-                android:layout_marginBottom="20dp"/>
-
-            <Button
-                android:id="@+id/btn_action"
-                android:layout_width="match_parent"
-                android:layout_height="55dp"
-                android:text="立即登录"
-                android:textSize="16sp"
-                android:backgroundTint="#6200EE"
-                app:cornerRadius="8dp"/>
-
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-</LinearLayout>
+                    android:textColor="@color/white"
+                    android:background="@drawable/btn_black_rounded"
+                    app:backgroundTint="@null"/> </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+</FrameLayout>
