@@ -23,37 +23,47 @@ public class ProfileFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        // 1. 设置用户名显示
-        TextView tvUsername = view.findViewById(R.id.tv_username);
-        String user = DataManager.getInstance().getLoggedInUser();
-        tvUsername.setText(user != null ? user : "未登录用户");
+        // 安全检查：防止视图未创建就调用
+        if (view == null) return;
 
-        // 2. 性别设置逻辑 (保持原有)
+        TextView tvName = view.findViewById(R.id.tv_username);
         RadioGroup rg = view.findViewById(R.id.rg_gender);
-        if ("Male".equals(DataManager.getInstance().getGender())) {
+        Button btnLogout = view.findViewById(R.id.btn_logout);
+
+        // 1. 获取并显示用户名 (增加判空)
+        String user = DataManager.getInstance().getLoggedInUser();
+        if (user != null) {
+            tvName.setText(user);
+        } else {
+            tvName.setText("游客");
+        }
+
+        // 2. 初始化性别选择状态
+        String gender = DataManager.getInstance().getGender();
+        if ("Male".equalsIgnoreCase(gender)) {
             rg.check(R.id.rb_male);
         } else {
             rg.check(R.id.rb_female);
         }
 
+        // 3. 监听性别修改
         rg.setOnCheckedChangeListener((group, checkedId) -> {
-            String g = (checkedId == R.id.rb_male) ? "Male" : "Female";
-            DataManager.getInstance().setGender(g);
-            Toast.makeText(getContext(), "设置已保存", Toast.LENGTH_SHORT).show();
+            String newGender = (checkedId == R.id.rb_male) ? "Male" : "Female";
+            DataManager.getInstance().setGender(newGender);
+            Toast.makeText(getContext(), "偏好已更新为: " + newGender, Toast.LENGTH_SHORT).show();
         });
 
-        // 3. 退出登录逻辑
-        Button btnLogout = view.findViewById(R.id.btn_logout);
+        // 4. 退出登录逻辑
         btnLogout.setOnClickListener(v -> {
-            // 清除登录状态
             DataManager.getInstance().logout();
-            Toast.makeText(getContext(), "已退出登录", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "已安全退出", Toast.LENGTH_SHORT).show();
 
-            // 跳转回登录页
-            Intent intent = new Intent(getActivity(), LoginActivity.class);
-            // 清空任务栈，防止用户点返回键又回到 App 内部
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
+            // 跳转回登录页，并清空栈（防止按返回键回来）
+            if (getActivity() != null) {
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            }
         });
     }
 }
