@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
+    <item android:id="@+id/nav_home" android:title="首页" android:icon="@android:drawable/ic_menu_view" />
+    <item android:id="@+id/nav_weather" android:title="天气" android:icon="@android:drawable/ic_menu_day" />
+    <item android:id="@+id/nav_try_on" android:title="换装" android:icon="@android:drawable/ic_menu_camera" />
+    <item android:id="@+id/nav_profile" android:title="我的" android:icon="@android:drawable/ic_menu_myplaces" />
 </menu>
