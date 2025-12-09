@@ -4,8 +4,24 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/nav_home">
 
-    <fragment android:id="@+id/nav_home" android:name="com.example.myfashion.HomeFragment" android:label="Home" />
-    <fragment android:id="@+id/nav_weather" android:name="com.example.myfashion.WeatherFragment" android:label="Weather" />
-    <fragment android:id="@+id/nav_try_on" android:name="com.example.myfashion.TryOnFragment" android:label="TryOn" />
-    <fragment android:id="@+id/nav_profile" android:name="com.example.myfashion.ProfileFragment" android:label="Profile" />
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.myfashion.HomeFragment"
+        android:label="Home" />
+
+    <fragment
+        android:id="@+id/nav_community"
+        android:name="com.example.myfashion.CommunityFragment"
+        android:label="Community" />
+
+    <fragment
+        android:id="@+id/nav_try_on"
+        android:name="com.example.myfashion.TryOnFragment"
+        android:label="TryOn" />
+
+    <fragment
+        android:id="@+id/nav_profile"
+        android:name="com.example.myfashion.ProfileFragment"
+        android:label="Profile" />
+
 </navigation>
