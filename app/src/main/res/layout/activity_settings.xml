@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_app">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/white"
+        android:paddingHorizontal="16dp">
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_revert"
+            android:layout_centerVertical="true"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="设置"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#333"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="基本设置"
+        android:padding="16dp"
+        android:textColor="#888"
+        android:textSize="12sp"/>
+
+    <include layout="@layout/item_menu_row" android:id="@+id/row_preference"/>
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F5F5F5" android:layout_marginStart="60dp"/>
+
+    <include layout="@layout/item_menu_row" android:id="@+id/row_avatar"/>
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F5F5F5" android:layout_marginStart="60dp"/>
+
+    <include layout="@layout/item_menu_row" android:id="@+id/row_nickname"/>
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F5F5F5" android:layout_marginStart="60dp"/>
+
+    <include layout="@layout/item_menu_row" android:id="@+id/row_birthday"/>
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F5F5F5" android:layout_marginStart="60dp"/>
+
+    <include layout="@layout/item_menu_row" android:id="@+id/row_gender"/>
+
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_margin="32dp"
+        android:text="退出登录"
+        android:textColor="#FF5252"
+        android:background="@drawable/btn_black_rounded"
+        android:backgroundTint="#FFF"
+        style="?android:attr/borderlessButtonStyle"/>
+</LinearLayout>

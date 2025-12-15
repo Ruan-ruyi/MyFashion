@@ -87,7 +87,10 @@ public class DataManager {
     public List<Outfit> getOutfits() {
         List<Outfit> result = new ArrayList<>();
         for (Outfit o : outfitList) {
-            if (o.getGender().equalsIgnoreCase(currentGender)) result.add(o);
+            // 修改点：如果当前偏好是 "All"，则显示所有；否则匹配性别
+            if ("All".equalsIgnoreCase(currentGender) || o.getGender().equalsIgnoreCase(currentGender)) {
+                result.add(o);
+            }
         }
         return result;
     }
