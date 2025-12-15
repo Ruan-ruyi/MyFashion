@@ -3,8 +3,10 @@ package com.example.myfashion;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,24 +21,28 @@ public class SettingsActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
 
-        // 初始化每一行
-        setupItem(R.id.row_preference, "偏好设置", R.drawable.ic_launcher_foreground); // 这里的图标后面可以换
-        setupItem(R.id.row_avatar, "头像设置", R.drawable.ic_launcher_foreground);
-        setupItem(R.id.row_nickname, "昵称设置", R.drawable.ic_launcher_foreground);
-        setupItem(R.id.row_birthday, "生日设置", R.drawable.ic_launcher_foreground);
-        setupItem(R.id.row_gender, "性别设置", R.drawable.ic_launcher_foreground);
+        // 初始化菜单项
+        setupItem(R.id.row_preference, "穿搭偏好 (看男装/女装)");
+        setupItem(R.id.row_avatar, "修改头像");
+        setupItem(R.id.row_nickname, "修改昵称");
+        setupItem(R.id.row_birthday, "设置生日");
+        setupItem(R.id.row_gender, "我的性别");
 
-        // --- 1. 偏好设置点击逻辑 ---
+        // 1. 穿搭偏好
         findViewById(R.id.row_preference).setOnClickListener(v -> showPreferenceDialog());
 
-        // --- 2. 其他设置点击 (暂做演示) ---
+        // 2. 修改昵称 (核心逻辑)
+        findViewById(R.id.row_nickname).setOnClickListener(v -> showEditNicknameDialog());
+
+        // 3. 修改性别 (核心逻辑)
+        findViewById(R.id.row_gender).setOnClickListener(v -> showGenderDialog());
+
+        // 4. 其他暂未实现的功能
         View.OnClickListener demoListener = v -> Toast.makeText(this, "功能开发中...", Toast.LENGTH_SHORT).show();
         findViewById(R.id.row_avatar).setOnClickListener(demoListener);
-        findViewById(R.id.row_nickname).setOnClickListener(demoListener);
         findViewById(R.id.row_birthday).setOnClickListener(demoListener);
-        findViewById(R.id.row_gender).setOnClickListener(demoListener);
 
-        // --- 3. 退出登录 ---
+        // 退出登录
         Button btnLogout = findViewById(R.id.btn_logout);
         btnLogout.setOnClickListener(v -> {
             DataManager.getInstance().logout();
@@ -45,40 +51,83 @@ public class SettingsActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        updatePreferenceText();
+        // 关键点：进入页面时，刷新显示，从 DataManager 读取最新数据
+        refreshUI();
     }
 
-    // 辅助方法：设置行的标题和图标
-    private void setupItem(int viewId, String title, int iconRes) {
+    private void setupItem(int viewId, String title) {
         View view = findViewById(viewId);
         TextView tvTitle = view.findViewById(R.id.tv_title);
         ImageView ivIcon = view.findViewById(R.id.iv_icon);
         tvTitle.setText(title);
-        ivIcon.setVisibility(View.GONE); // 这里设置页面为了简洁，暂时隐藏左侧图标，如果你需要显示把这行删掉
+        ivIcon.setVisibility(View.GONE);
     }
 
-    // 显示偏好选择弹窗
-    private void showPreferenceDialog() {
-        String[] options = {"女装 (Female)", "男装 (Male)", "所有 (All)"};
-        String[] values = {"Female", "Male", "All"};
+    // 刷新界面文字 (从 DataManager 获取数据)
+    private void refreshUI() {
+        // 1. 刷新偏好
+        TextView tvPref = findViewById(R.id.row_preference).findViewById(R.id.tv_value);
+        String pref = DataManager.getInstance().getGender();
+        if ("Female".equals(pref)) tvPref.setText("只看女装");
+        else if ("Male".equals(pref)) tvPref.setText("只看男装");
+        else tvPref.setText("全部显示");
 
+        // 2. 【关键】刷新昵称
+        TextView tvNick = findViewById(R.id.row_nickname).findViewById(R.id.tv_value);
+        tvNick.setText(DataManager.getInstance().getNickname());
+
+        // 3. 【关键】刷新我的性别
+        TextView tvGender = findViewById(R.id.row_gender).findViewById(R.id.tv_value);
+        tvGender.setText(DataManager.getInstance().getUserSelfGender());
+    }
+
+    // --- 弹窗逻辑 ---
+
+    // 1. 偏好设置弹窗
+    private void showPreferenceDialog() {
+        String[] options = {"只看女装", "只看男装", "全部显示"};
+        String[] values = {"Female", "Male", "All"};
         new AlertDialog.Builder(this)
-                .setTitle("选择穿搭偏好")
+                .setTitle("首页显示内容")
                 .setItems(options, (dialog, which) -> {
-                    DataManager.getInstance().setGender(values[which]);
-                    updatePreferenceText();
-                    Toast.makeText(this, "已切换为: " + options[which], Toast.LENGTH_SHORT).show();
+                    DataManager.getInstance().setGender(values[which]); // 保存到 DataManager
+                    refreshUI();
+                    Toast.makeText(this, "首页内容已更新", Toast.LENGTH_SHORT).show();
                 })
                 .show();
     }
 
-    // 更新右侧文字显示当前状态
-    private void updatePreferenceText() {
-        View view = findViewById(R.id.row_preference);
-        TextView tvValue = view.findViewById(R.id.tv_value);
-        String current = DataManager.getInstance().getGender();
-        if ("Female".equals(current)) tvValue.setText("女装");
-        else if ("Male".equals(current)) tvValue.setText("男装");
-        else tvValue.setText("所有");
+    // 2. 修改昵称弹窗
+    private void showEditNicknameDialog() {
+        EditText input = new EditText(this);
+        input.setHint("请输入新昵称");
+        input.setText(DataManager.getInstance().getNickname()); // 显示当前昵称
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+
+        new AlertDialog.Builder(this)
+                .setTitle("修改昵称")
+                .setView(input)
+                .setPositiveButton("保存", (dialog, which) -> {
+                    String newName = input.getText().toString();
+                    if (!newName.isEmpty()) {
+                        DataManager.getInstance().setNickname(newName); // 【关键】保存到 DataManager
+                        refreshUI(); // 刷新界面
+                        Toast.makeText(this, "昵称已保存", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    // 3. 修改性别弹窗
+    private void showGenderDialog() {
+        String[] options = {"男", "女", "保密"};
+        new AlertDialog.Builder(this)
+                .setTitle("选择您的性别")
+                .setItems(options, (dialog, which) -> {
+                    DataManager.getInstance().setUserSelfGender(options[which]); // 【关键】保存到 DataManager
+                    refreshUI(); // 刷新界面
+                })
+                .show();
     }
 }

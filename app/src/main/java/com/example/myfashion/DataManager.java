@@ -9,8 +9,14 @@ public class DataManager {
     private static DataManager instance;
     private List<Outfit> outfitList;
     private List<Post> communityPosts;
-    private String currentGender = "Female";
-    private String loggedInUser = null;
+
+    // --- 现有字段 ---
+    private String currentGender = "Female"; // 这是“穿搭偏好”（看男装还是女装）
+    private String loggedInUser = null;      // 登录账号名 (ID)
+
+    // --- 【新增】个人信息字段 ---
+    private String nickname = "点击设置昵称"; // 默认昵称
+    private String userSelfGender = "保密";   // 默认个人性别
 
     // 模拟数据库
     private Map<String, String> userDatabase;
@@ -32,8 +38,7 @@ public class DataManager {
         phoneDatabase.put("user", "13900139000");
     }
 
-    // 初始化穿搭数据 (使用更稳定的 Lorem Picsum 图片源)
-// 初始化穿搭数据 (模拟大量数据)
+    // 初始化穿搭数据 (模拟大量数据)
     private void initOutfitData() {
         outfitList = new ArrayList<>();
         // 我们可以循环生成一些数据，或者手动多加一些
@@ -68,7 +73,7 @@ public class DataManager {
         return instance;
     }
 
-    // --- 登录注册逻辑 (保持不变) ---
+    // --- 登录注册逻辑 ---
     public boolean checkLogin(String username, String password) {
         if (userDatabase.containsKey(username)) {
             return userDatabase.get(username).equals(password);
@@ -83,22 +88,39 @@ public class DataManager {
         return true;
     }
 
-    // --- Getter / Setter (保持不变) ---
+    // --- Getter / Setter ---
+
+    // 【修改点】支持 "All" 显示所有性别
     public List<Outfit> getOutfits() {
         List<Outfit> result = new ArrayList<>();
         for (Outfit o : outfitList) {
-            // 修改点：如果当前偏好是 "All"，则显示所有；否则匹配性别
             if ("All".equalsIgnoreCase(currentGender) || o.getGender().equalsIgnoreCase(currentGender)) {
                 result.add(o);
             }
         }
         return result;
     }
+
     public List<Post> getCommunityPosts() { return communityPosts; }
     public void addPost(Post post) { communityPosts.add(0, post); }
-    public String getGender() { return currentGender; }
-    public void setGender(String gender) { this.currentGender = gender; }
+
+    public String getGender() { return currentGender; } // 获取穿搭偏好
+    public void setGender(String gender) { this.currentGender = gender; } // 设置穿搭偏好
+
     public void login(String username) { this.loggedInUser = username; }
     public void logout() { this.loggedInUser = null; }
     public String getLoggedInUser() { return loggedInUser; }
+
+    // --- 【新增】昵称和个人性别的 Getter/Setter ---
+    public String getNickname() {
+        // 如果没有设置昵称，默认显示登录账号名
+        if (nickname == null || nickname.equals("点击设置昵称")) {
+            return loggedInUser != null ? loggedInUser : "游客";
+        }
+        return nickname;
+    }
+    public void setNickname(String nickname) { this.nickname = nickname; }
+
+    public String getUserSelfGender() { return userSelfGender; }
+    public void setUserSelfGender(String gender) { this.userSelfGender = gender; }
 }
