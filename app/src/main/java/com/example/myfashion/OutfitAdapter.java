@@ -8,15 +8,24 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OutfitAdapter extends RecyclerView.Adapter<OutfitAdapter.ViewHolder> {
     private List<Outfit> mList;
+    // 1. 新增监听器接口
+    private OnItemClickListener mListener;
 
-    public OutfitAdapter(List<Outfit> list) {
-        this.mList = list;
+    public interface OnItemClickListener {
+        void onItemClick(Outfit outfit);
     }
 
+    public OutfitAdapter(List<Outfit> list, OnItemClickListener listener) { // 修改构造函数
+        this.mList = list;
+        this.mListener = listener;
+    }
+
+    // 更新数据的方法
     public void updateData(List<Outfit> newList) {
         this.mList = newList;
         notifyDataSetChanged();
@@ -33,19 +42,29 @@ public class OutfitAdapter extends RecyclerView.Adapter<OutfitAdapter.ViewHolder
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Outfit outfit = mList.get(position);
         holder.tvTitle.setText(outfit.getTitle());
-        // 使用 Glide 加载图片
+
+        // 修改点：load() 方法现在直接接收 int 类型的资源ID，Glide 能自动识别
         Glide.with(holder.itemView.getContext())
-                .load(outfit.getImageUrl())
-                .placeholder(android.R.drawable.ic_menu_gallery) // 加载中显示的默认图
+                .load(outfit.getImageResId()) // 这里改成了 getImageResId()
+                .placeholder(R.drawable.ic_launcher_background)
                 .into(holder.ivImage);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (mListener != null) {
+                mListener.onItemClick(outfit);
+            }
+        });
     }
 
     @Override
-    public int getItemCount() { return mList.size(); }
+    public int getItemCount() {
+        return mList != null ? mList.size() : 0;
+    }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivImage;
         TextView tvTitle;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             ivImage = itemView.findViewById(R.id.iv_outfit);

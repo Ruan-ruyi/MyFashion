@@ -30,6 +30,7 @@
             android:name=".MainActivity"
             android:exported="false" />
 
+        <activity android:name=".OutfitDetailActivity" android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"/>
     </application>
 
 </manifest>
