@@ -1,121 +1,171 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/bg_app">
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/bg_login"
+        android:scaleType="centerCrop"/>
 
     <View
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:background="#E8EAF6"
-        android:layout_gravity="top|end"
-        android:layout_marginTop="-100dp"
-        android:layout_marginEnd="-80dp"
-        android:rotation="45"/>
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#50000000"/>
 
     <LinearLayout
+        android:id="@+id/layout_welcome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:paddingHorizontal="32dp"
+        android:paddingBottom="32dp"
+        android:visibility="visible">
+        <Button
+            android:id="@+id/btn_start_login"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="40dp"
+            android:text="登录"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#333"
+            android:background="@drawable/bg_edittext_rounded"
+            android:backgroundTint="#CCFFFFFF"
+            app:cornerRadius="24dp"
+            android:layout_marginEnd="12dp"/>
+
+        <Button
+            android:id="@+id/btn_start_register"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="40dp"
+            android:text="注册"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:background="@drawable/bg_edittext_rounded"
+            android:backgroundTint="#80000000"
+            app:cornerRadius="24dp"
+            android:layout_marginStart="12dp"/>
+    </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_form"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:orientation="vertical"
-        android:padding="32dp">
+        android:layout_margin="24dp"
+        android:visibility="gone"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="#F0FFFFFF">
 
-        <ImageView
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:src="@mipmap/ic_launcher_round"
-            android:layout_gravity="center_horizontal"
-            android:elevation="8dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="My Fashion"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="40dp"/>
-
-        <androidx.cardview.widget.CardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/white"
-            xmlns:app="http://schemas.android.com/apk/res-auto">
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="巧装"
+                    android:textSize="26sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/login_text_dark"
+                    android:layout_centerInParent="true"/>
+
+                <ImageButton
+                    android:id="@+id/btn_close_card"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    app:tint="#999"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:scaleType="fitCenter"/>
+            </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="24dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
+                android:layout_marginBottom="20dp">
+                <TextView
+                    android:id="@+id/tv_tab_login"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="24dp">
-                    <TextView
-                        android:id="@+id/tv_tab_login"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:text="登录"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary"
-                        android:gravity="center"/>
-                    <TextView
-                        android:id="@+id/tv_tab_register"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:text="注册"
-                        android:textSize="18sp"
-                        android:textColor="@color/text_secondary"
-                        android:gravity="center"/>
-                </LinearLayout>
+                    android:text="登录"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/login_text_dark"
+                    android:gravity="center"/>
+                <TextView
+                    android:id="@+id/tv_tab_register"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="注册"
+                    android:textSize="16sp"
+                    android:textColor="@color/login_text_light"
+                    android:gravity="center"/>
+            </LinearLayout>
 
-                <EditText
-                    android:id="@+id/et_username"
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:hint="用户名"
-                    android:background="@drawable/bg_edittext_rounded"
-                    android:paddingHorizontal="16dp"
-                    android:layout_marginBottom="16dp"/>
+            <EditText
+                android:id="@+id/et_username"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="用户名"
+                android:background="@drawable/bg_edittext_rounded"
+                android:paddingHorizontal="16dp"
+                android:textSize="14sp"
+                android:layout_marginBottom="12dp"/>
 
-                <EditText
-                    android:id="@+id/et_password"
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:hint="密码"
-                    android:inputType="textPassword"
-                    android:background="@drawable/bg_edittext_rounded"
-                    android:paddingHorizontal="16dp"
-                    android:layout_marginBottom="24dp"/>
+            <EditText
+                android:id="@+id/et_password"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="密码"
+                android:inputType="textPassword"
+                android:background="@drawable/bg_edittext_rounded"
+                android:paddingHorizontal="16dp"
+                android:textSize="14sp"
+                android:layout_marginBottom="20dp"/>
 
-                <EditText
-                    android:id="@+id/et_phone"
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:hint="手机号"
-                    android:inputType="phone"
-                    android:background="@drawable/bg_edittext_rounded"
-                    android:paddingHorizontal="16dp"
-                    android:visibility="gone"
-                    android:layout_marginBottom="24dp"/>
+            <EditText
+                android:id="@+id/et_phone"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="手机号"
+                android:inputType="phone"
+                android:background="@drawable/bg_edittext_rounded"
+                android:paddingHorizontal="16dp"
+                android:textSize="14sp"
+                android:visibility="gone"
+                android:layout_marginBottom="20dp"/>
 
-                <Button
-                    android:id="@+id/btn_action"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="立即登录"
-                    android:textSize="18sp"
-                    android:textColor="@color/white"
-                    android:background="@drawable/btn_black_rounded"
-                    app:backgroundTint="@null"/> </LinearLayout>
-        </androidx.cardview.widget.CardView>
-    </LinearLayout>
+            <Button
+                android:id="@+id/btn_action"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="立即登录"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:background="@drawable/btn_black_rounded"
+                android:backgroundTint="#222"
+                app:cornerRadius="25dp"/>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 </FrameLayout>

@@ -8,4 +8,13 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="bg_app">#F7F8FA</color> <color name="text_primary">#333333</color> <color name="text_secondary">#888888</color> <color name="color_accent">#FF2442</color> <color name="color_primary_btn">#333333</color> <color name="divider_line">#EEEEEE</color> </resources>
+    <color name="bg_app">#F7F8FA</color>
+    <color name="text_primary">#333333</color>
+    <color name="text_secondary">#888888</color>
+    <color name="color_accent">#FF2442</color>
+    <color name="color_primary_btn">#333333</color>
+    <color name="divider_line">#EEEEEE</color>
+
+    <color name="login_text_dark">#2D3436</color>
+    <color name="login_text_light">#636E72</color>
+</resources>
