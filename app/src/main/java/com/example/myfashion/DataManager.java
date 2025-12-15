@@ -33,17 +33,26 @@ public class DataManager {
     }
 
     // 初始化穿搭数据 (使用更稳定的 Lorem Picsum 图片源)
+// 初始化穿搭数据 (模拟大量数据)
     private void initOutfitData() {
         outfitList = new ArrayList<>();
-        // 格式: https://picsum.photos/id/{图片ID}/{宽}/{高}
-        outfitList.add(new Outfit("春季清新碎花裙", "https://picsum.photos/id/64/600/800", "Female"));
-        outfitList.add(new Outfit("商务休闲西装", "https://picsum.photos/id/447/600/800", "Male"));
-        outfitList.add(new Outfit("街头酷飒穿搭", "https://picsum.photos/id/342/600/800", "Male"));
-        outfitList.add(new Outfit("优雅晚礼服", "https://picsum.photos/id/439/600/800", "Female"));
-        outfitList.add(new Outfit("秋季风衣外套", "https://picsum.photos/id/1005/600/800", "Male"));
-        outfitList.add(new Outfit("复古牛仔风", "https://picsum.photos/id/338/600/800", "Male"));
-        outfitList.add(new Outfit("夏日海边度假风", "https://picsum.photos/id/838/600/800", "Female"));
-        outfitList.add(new Outfit("极简主义搭配", "https://picsum.photos/id/91/600/800", "Male"));
+        // 我们可以循环生成一些数据，或者手动多加一些
+        outfitList.add(new Outfit("春季清新碎花裙", R.drawable.o1, "Female"));
+        outfitList.add(new Outfit("商务休闲西装", R.drawable.o2, "Male"));
+        outfitList.add(new Outfit("街头酷飒穿搭", R.drawable.o3, "Male"));
+        outfitList.add(new Outfit("优雅晚礼服", R.drawable.o4, "Female"));
+        outfitList.add(new Outfit("秋季风衣外套", R.drawable.o5, "Male"));
+        outfitList.add(new Outfit("复古牛仔风", R.drawable.o6, "Male"));
+        outfitList.add(new Outfit("夏日海边度假风", R.drawable.o7, "Female"));
+        outfitList.add(new Outfit("极简主义白T恤", R.drawable.o8, "Male"));
+
+        // --- 新增数据 ---
+        outfitList.add(new Outfit("冬季保暖羽绒服", R.drawable.o9, "Female"));
+        outfitList.add(new Outfit("运动健身套装", R.drawable.o10, "Female"));
+        outfitList.add(new Outfit("日系工装风格", R.drawable.o11, "Male"));
+        outfitList.add(new Outfit("约会甜美穿搭", R.drawable.o12, "Female"));
+        outfitList.add(new Outfit("职场精英范", R.drawable.o13, "Male"));
+        outfitList.add(new Outfit("海岛风情长裙", R.drawable.o14, "Female"));
     }
 
     // 初始化社区数据 (使用 Lorem Picsum 头像和配图)

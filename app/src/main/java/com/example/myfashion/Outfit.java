@@ -2,16 +2,26 @@ package com.example.myfashion;
 
 public class Outfit {
     private String title;
-    private String imageUrl;
-    private String gender; // "Male" or "Female"
+    private int imageResId; // 修改点：类型改为 int，变量名改为 imageResId
+    private String gender;
 
-    public Outfit(String title, String imageUrl, String gender) {
+    // 修改构造函数，接收 int 类型的图片ID
+    public Outfit(String title, int imageResId, String gender) {
         this.title = title;
-        this.imageUrl = imageUrl;
+        this.imageResId = imageResId;
         this.gender = gender;
     }
 
-    public String getTitle() { return title; }
-    public String getImageUrl() { return imageUrl; }
-    public String getGender() { return gender; }
+    public String getTitle() {
+        return title;
+    }
+
+    // 修改 Getter 方法
+    public int getImageResId() {
+        return imageResId;
+    }
+
+    public String getGender() {
+        return gender;
+    }
 }
