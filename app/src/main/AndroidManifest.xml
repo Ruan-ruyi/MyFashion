@@ -3,8 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -16,6 +20,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyFashion"
         android:usesCleartextTraffic="true">
+
+        <activity android:name=".SettingsActivity" />
 
         <activity
             android:name=".LoginActivity"
@@ -31,8 +37,6 @@
             android:exported="false" />
 
         <activity android:name=".OutfitDetailActivity" android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"/>
-
-        <activity android:name=".SettingsActivity" android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"/>
     </application>
 
 </manifest>
