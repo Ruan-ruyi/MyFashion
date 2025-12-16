@@ -50,22 +50,24 @@ public class DataManager {
         phoneDatabase.put("user", "13900139000");
     }
 
+    // 修改 initOutfitData，为每个穿搭添加标签
     private void initOutfitData() {
         outfitList = new ArrayList<>();
-        outfitList.add(new Outfit("春季清新碎花裙", R.drawable.o1, "Female"));
-        outfitList.add(new Outfit("商务休闲西装", R.drawable.o2, "Male"));
-        outfitList.add(new Outfit("街头酷飒穿搭", R.drawable.o3, "Male"));
-        outfitList.add(new Outfit("优雅晚礼服", R.drawable.o4, "Female"));
-        outfitList.add(new Outfit("秋季风衣外套", R.drawable.o5, "Male"));
-        outfitList.add(new Outfit("复古牛仔风", R.drawable.o6, "Male"));
-        outfitList.add(new Outfit("夏日海边度假风", R.drawable.o7, "Female"));
-        outfitList.add(new Outfit("极简主义白T恤", R.drawable.o8, "Male"));
-        outfitList.add(new Outfit("冬季保暖羽绒服", R.drawable.o9, "Female"));
-        outfitList.add(new Outfit("运动健身套装", R.drawable.o10, "Female"));
-        outfitList.add(new Outfit("日系工装风格", R.drawable.o11, "Male"));
-        outfitList.add(new Outfit("约会甜美穿搭", R.drawable.o12, "Female"));
-        outfitList.add(new Outfit("职场精英范", R.drawable.o13, "Male"));
-        outfitList.add(new Outfit("海岛风情长裙", R.drawable.o14, "Female"));
+        // 格式：new String[]{"标签1", "标签2"}
+        outfitList.add(new Outfit("春季清新碎花裙", R.drawable.o1, "Female", new String[]{"春季", "休闲", "约会"}));
+        outfitList.add(new Outfit("商务休闲西装", R.drawable.o2, "Male", new String[]{"通勤", "商务", "秋季"}));
+        outfitList.add(new Outfit("街头酷飒穿搭", R.drawable.o3, "Male", new String[]{"街头", "休闲", "酷帅"}));
+        outfitList.add(new Outfit("优雅晚礼服", R.drawable.o4, "Female", new String[]{"宴会", "优雅", "正式"}));
+        outfitList.add(new Outfit("秋季风衣外套", R.drawable.o5, "Male", new String[]{"秋季", "通勤", "保暖"}));
+        outfitList.add(new Outfit("复古牛仔风", R.drawable.o6, "Male", new String[]{"复古", "休闲", "牛仔"}));
+        outfitList.add(new Outfit("夏日海边度假风", R.drawable.o7, "Female", new String[]{"夏季", "度假", "海边"}));
+        outfitList.add(new Outfit("极简主义白T恤", R.drawable.o8, "Male", new String[]{"夏季", "极简", "休闲"}));
+        outfitList.add(new Outfit("冬季保暖羽绒服", R.drawable.o9, "Female", new String[]{"冬季", "保暖", "休闲"}));
+        outfitList.add(new Outfit("运动健身套装", R.drawable.o10, "Female", new String[]{"运动", "健身", "活力"}));
+        outfitList.add(new Outfit("日系工装风格", R.drawable.o11, "Male", new String[]{"日系", "工装", "休闲"}));
+        outfitList.add(new Outfit("约会甜美穿搭", R.drawable.o12, "Female", new String[]{"约会", "甜美", "春季"}));
+        outfitList.add(new Outfit("职场精英范", R.drawable.o13, "Male", new String[]{"通勤", "商务", "正式"}));
+        outfitList.add(new Outfit("海岛风情长裙", R.drawable.o14, "Female", new String[]{"度假", "夏季", "优雅"}));
     }
 
     private void initCommunityData() {
@@ -197,5 +199,42 @@ public class DataManager {
             }
         }
         return result;
+    }
+
+    // 【新增】根据标签筛选穿搭
+    public List<Outfit> getOutfitsByTag(String tag) {
+        if (tag == null || tag.equals("全部")) {
+            return getOutfits(); // 返回当前性别下的所有穿搭
+        }
+        List<Outfit> result = new ArrayList<>();
+        List<Outfit> genderFiltered = getOutfits(); // 先获取符合性别的
+        for (Outfit o : genderFiltered) {
+            for (String t : o.getTags()) {
+                if (t.equals(tag)) {
+                    result.add(o);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    // 【新增】获取我的衣柜（已收藏的穿搭）
+    public List<Outfit> getMyFavoriteOutfits() {
+        List<Outfit> result = new ArrayList<>();
+        for (Outfit o : outfitList) {
+            if (o.isFavorite()) {
+                result.add(o);
+            }
+        }
+        return result;
+    }
+
+    // 【新增】根据标题查找 Outfit 对象（用于详情页操作）
+    public Outfit getOutfitByTitle(String title) {
+        for (Outfit o : outfitList) {
+            if (o.getTitle().equals(title)) return o;
+        }
+        return null;
     }
 }

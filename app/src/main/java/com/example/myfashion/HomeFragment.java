@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -33,6 +34,11 @@ public class HomeFragment extends Fragment {
     private OutfitAdapter adapter;
     private List<Outfit> allOutfits;
     private TextView tvCity, tvWeather;
+
+    // 【新增】标签筛选相关变量
+    private LinearLayout llTagsContainer;
+    private final String[] tags = {"全部", "春季", "夏季", "秋季", "冬季", "通勤", "休闲", "约会", "度假", "运动"};
+    private String currentTag = "全部";
 
     // 定位相关
     private LocationManager locationManager;
@@ -51,9 +57,12 @@ public class HomeFragment extends Fragment {
         tvCity = view.findViewById(R.id.tv_city);
         tvWeather = view.findViewById(R.id.tv_weather);
         EditText etSearch = view.findViewById(R.id.et_search);
+        // 【新增】绑定标签容器
+        llTagsContainer = view.findViewById(R.id.ll_tags_container);
 
-        // 2. 初始化列表 (保持原有逻辑)
+        // 2. 初始化列表
         rv.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+        // 初始显示全部数据
         allOutfits = DataManager.getInstance().getOutfits();
         adapter = new OutfitAdapter(allOutfits, outfit -> {
             Intent intent = new Intent(getActivity(), OutfitDetailActivity.class);
@@ -63,18 +72,80 @@ public class HomeFragment extends Fragment {
         });
         rv.setAdapter(adapter);
 
-        // 3. 搜索功能 (保持原有逻辑)
+        // 3. 搜索功能 (输入文字时进行标题过滤)
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
             @Override public void afterTextChanged(Editable s) { filter(s.toString()); }
         });
 
-        // 4. 【新增】城市点击切换功能
+        // 4. 城市点击切换功能
         tvCity.setOnClickListener(v -> showCityPicker());
 
-        // 5. 【新增】尝试自动定位
+        // 5. 尝试自动定位
         startLocationService();
+
+        // 6. 【新增】初始化筛选标签
+        initFilterTags();
+    }
+
+    // --- 核心功能 0: 标签筛选逻辑 ---
+    private void initFilterTags() {
+        llTagsContainer.removeAllViews();
+        for (String tag : tags) {
+            TextView tv = new TextView(getContext());
+            tv.setText(tag);
+            tv.setTextSize(14);
+            tv.setPadding(40, 16, 40, 16);
+
+            // 设置标签的间距
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.setMargins(0, 0, 24, 0); // 右边距
+            tv.setLayoutParams(params);
+
+            // 初始化样式 (根据是否是当前选中的标签)
+            updateTagStyle(tv, tag.equals(currentTag));
+
+            // 点击事件
+            tv.setOnClickListener(v -> {
+                currentTag = tag;
+                // 1. 刷新所有标签的样式
+                for (int i = 0; i < llTagsContainer.getChildCount(); i++) {
+                    View child = llTagsContainer.getChildAt(i);
+                    if (child instanceof TextView) {
+                        TextView t = (TextView) child;
+                        updateTagStyle(t, t.getText().toString().equals(currentTag));
+                    }
+                }
+                // 2. 执行数据筛选
+                filterByTag(currentTag);
+            });
+
+            llTagsContainer.addView(tv);
+        }
+    }
+
+    // 辅助方法：更新标签样式（选中变黑，未选中变灰/白）
+    private void updateTagStyle(TextView tv, boolean isSelected) {
+        if (isSelected) {
+            tv.setTextColor(getResources().getColor(R.color.white));
+            // 使用之前上传的黑色圆角背景资源
+            tv.setBackgroundResource(R.drawable.btn_black_rounded);
+        } else {
+            tv.setTextColor(getResources().getColor(R.color.text_primary)); // 或 Color.BLACK
+            // 使用之前上传的白色描边背景资源
+            tv.setBackgroundResource(R.drawable.btn_outline_white);
+        }
+    }
+
+    // 根据标签筛选数据
+    private void filterByTag(String tag) {
+        // 调用 DataManager 中新加的方法
+        List<Outfit> filteredList = DataManager.getInstance().getOutfitsByTag(tag);
+        if (adapter != null) {
+            adapter.updateData(filteredList);
+        }
     }
 
     // --- 核心功能 1: 城市选择弹窗 ---
@@ -85,7 +156,7 @@ public class HomeFragment extends Fragment {
                 .setTitle("切换城市")
                 .setItems(cities, (dialog, which) -> {
                     String selectedCity = cities[which];
-                    updateWeatherUI(selectedCity); // 选中后更新
+                    updateWeatherUI(selectedCity);
                     Toast.makeText(getContext(), "已切换到 " + selectedCity, Toast.LENGTH_SHORT).show();
                 })
                 .show();
@@ -94,7 +165,6 @@ public class HomeFragment extends Fragment {
     // --- 核心功能 2: 更新界面 UI ---
     private void updateWeatherUI(String city) {
         tvCity.setText(city);
-        // 使用我们写的模拟器获取天气，以后这里可以换成真实 API 调用
         String weatherInfo = WeatherSimulator.getWeatherForCity(city);
         tvWeather.setText(weatherInfo);
     }
@@ -104,14 +174,11 @@ public class HomeFragment extends Fragment {
         if (getActivity() == null) return;
         locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
-        // 检查权限
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // 如果没权限，申请权限
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
             return;
         }
 
-        // 获取最后一次已知位置 (快速显示)
         Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         if (lastKnownLocation != null) {
             updateCityFromLocation(lastKnownLocation);
@@ -119,12 +186,10 @@ public class HomeFragment extends Fragment {
             tvCity.setText("定位中...");
         }
 
-        // 监听位置变化 (实时更新)
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 10, new LocationListener() {
             @Override
             public void onLocationChanged(@NonNull Location location) {
                 updateCityFromLocation(location);
-                // 定位成功一次后，为了省电可以移除监听
                 locationManager.removeUpdates(this);
             }
             @Override public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -133,19 +198,17 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    // 将经纬度转换为城市名 (反地理编码)
     private void updateCityFromLocation(Location location) {
         if (getContext() == null) return;
         try {
             Geocoder geocoder = new Geocoder(getContext(), Locale.CHINA);
             List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
             if (addresses != null && !addresses.isEmpty()) {
-                String city = addresses.get(0).getLocality(); // 获取城市名 (如：北京市)
-                if (city == null) city = addresses.get(0).getSubAdminArea(); // 某些地区 city 为空
+                String city = addresses.get(0).getLocality();
+                if (city == null) city = addresses.get(0).getSubAdminArea();
 
                 if (city != null) {
                     final String finalCity = city;
-                    // 确保在主线程更新 UI
                     if (getActivity() != null) {
                         getActivity().runOnUiThread(() -> updateWeatherUI(finalCity));
                     }
@@ -153,29 +216,30 @@ public class HomeFragment extends Fragment {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            // 如果定位失败（模拟器常见），默认显示北京
             if (tvCity.getText().toString().contains("定位")) {
                 updateWeatherUI("北京市");
             }
         }
     }
 
-    // 权限回调
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startLocationService(); // 授权成功，开始定位
+                startLocationService();
             } else {
                 Toast.makeText(getContext(), "需要定位权限才能显示当地天气", Toast.LENGTH_SHORT).show();
-                updateWeatherUI("北京市"); // 拒绝后默认显示北京
+                updateWeatherUI("北京市");
             }
         }
     }
 
+    // 搜索框筛选 (注意：这里是基于当前显示的全部数据进行标题搜索)
     private void filter(String text) {
         List<Outfit> filtered = new ArrayList<>();
+        // 为了简单，搜索时我们还是在所有数据里搜，不局限于当前选中的标签
+        // 如果想局限于标签，可以用 DataManager.getInstance().getOutfitsByTag(currentTag) 替换 allOutfits
         for (Outfit o : allOutfits) {
             if (o.getTitle().toLowerCase().contains(text.toLowerCase())) filtered.add(o);
         }

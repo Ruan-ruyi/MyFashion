@@ -34,12 +34,22 @@ public class ProfileFragment extends Fragment {
         ivAvatar = view.findViewById(R.id.iv_avatar);
 
         // 2. 初始化菜单项显示 (文字+图标)
+        // 注意：这里需要确保 fragment_profile.xml 中有对应的 include ID
+        setupMenuItem(view, R.id.menu_wardrobe, "我的衣柜", R.drawable.o1); // 暂时使用 o1 或其他图标
         setupMenuItem(view, R.id.menu_favorites, "我的收藏", android.R.drawable.btn_star_big_off);
         setupMenuItem(view, R.id.menu_likes, "我的点赞", android.R.drawable.btn_star_big_on);
         setupMenuItem(view, R.id.menu_notifications, "消息通知", android.R.drawable.ic_dialog_email);
         setupMenuItem(view, R.id.menu_settings, "设置", android.R.drawable.ic_menu_preferences);
 
-        // 3. 设置点击事件 (这里是核心修改：从 Toast 变成了真正的 Intent 跳转)
+        // 3. 设置点击事件
+
+        // 【新增】跳转 -> 我的衣柜
+        View menuWardrobe = view.findViewById(R.id.menu_wardrobe);
+        if (menuWardrobe != null) {
+            menuWardrobe.setOnClickListener(v -> {
+                startActivity(new Intent(getActivity(), MyWardrobeActivity.class));
+            });
+        }
 
         // 跳转 -> 设置
         view.findViewById(R.id.menu_settings).setOnClickListener(v -> {
@@ -72,7 +82,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // 每次回到页面时刷新数据 (防止在设置页改了头像回来没变)
+        // 每次回到页面时刷新数据
         updateUserInfo();
     }
 
@@ -84,11 +94,9 @@ public class ProfileFragment extends Fragment {
 
         // 更新头像
         if (ivAvatar != null) {
-            // 优先检查是否有自定义头像 (上传的)
             String customAvatarUri = DataManager.getInstance().getCustomAvatarUri();
 
             if (customAvatarUri != null) {
-                // 加载相册图片
                 try {
                     Glide.with(this)
                             .load(Uri.parse(customAvatarUri))
@@ -98,7 +106,6 @@ public class ProfileFragment extends Fragment {
                     e.printStackTrace();
                 }
             } else {
-                // 加载内置头像 (默认或选择的卡通图)
                 int avatarResId = DataManager.getInstance().getAvatarResId();
                 Glide.with(this)
                         .load(avatarResId)
@@ -111,9 +118,11 @@ public class ProfileFragment extends Fragment {
     // 辅助方法：设置菜单项的标题和图标
     private void setupMenuItem(View rootView, int itemId, String title, int iconRes) {
         View itemView = rootView.findViewById(itemId);
-        TextView tv = itemView.findViewById(R.id.tv_title);
-        ImageView iv = itemView.findViewById(R.id.iv_icon);
-        tv.setText(title);
-        iv.setImageResource(iconRes);
+        if (itemView != null) {
+            TextView tv = itemView.findViewById(R.id.tv_title);
+            ImageView iv = itemView.findViewById(R.id.iv_icon);
+            tv.setText(title);
+            iv.setImageResource(iconRes);
+        }
     }
 }
