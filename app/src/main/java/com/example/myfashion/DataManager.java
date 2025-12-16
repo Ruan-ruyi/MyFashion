@@ -150,4 +150,52 @@ public class DataManager {
         }
         return null;
     }
+
+    // --- 【新增】通知相关 ---
+    private List<Notification> notificationList;
+
+    // 初始化一些模拟通知
+    private void initNotifications() {
+        notificationList = new ArrayList<>();
+        notificationList.add(new Notification("系统通知", "欢迎来到 MyFashion！开启你的时尚之旅吧。", "刚刚"));
+        notificationList.add(new Notification("收到赞", "Jessica 赞了你的帖子", "10分钟前"));
+        notificationList.add(new Notification("新评论", "David: 这套搭配太帅了，求链接！", "1小时前"));
+        notificationList.add(new Notification("活动提醒", "周末穿搭挑战赛即将开始，快来参加！", "昨天"));
+    }
+
+    // 获取通知列表 (如果为空就初始化)
+    public List<Notification> getNotifications() {
+        if (notificationList == null) {
+            initNotifications();
+        }
+        return notificationList;
+    }
+
+    // 添加新通知 (供其他地方调用)
+    public void addNotification(String title, String content) {
+        if (notificationList == null) initNotifications();
+        notificationList.add(0, new Notification(title, content, "刚刚"));
+    }
+
+    // --- 【新增】获取“我的点赞”列表 ---
+    public List<Post> getMyLikedPosts() {
+        List<Post> result = new ArrayList<>();
+        for (Post p : communityPosts) {
+            if (p.isLiked()) { // 只要 isLiked 为 true，说明是我点的赞
+                result.add(p);
+            }
+        }
+        return result;
+    }
+
+    // --- 【新增】获取“我的收藏”列表 ---
+    public List<Post> getMyFavoritePosts() {
+        List<Post> result = new ArrayList<>();
+        for (Post p : communityPosts) {
+            if (p.isFavorited()) { // 只要 isFavorited 为 true
+                result.add(p);
+            }
+        }
+        return result;
+    }
 }

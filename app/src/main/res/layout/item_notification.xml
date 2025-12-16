@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:background="@color/white"
+    android:layout_marginBottom="1dp">
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@mipmap/ic_launcher_round"
+        android:layout_marginEnd="12dp"/>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/tv_noti_title"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="系统通知"
+                android:textStyle="bold"
+                android:textColor="#333"
+                android:textSize="16sp"/>
+            <TextView
+                android:id="@+id/tv_noti_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="刚刚"
+                android:textSize="12sp"
+                android:textColor="#999"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_noti_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="通知内容..."
+            android:textColor="#666"
+            android:layout_marginTop="4dp"/>
+    </LinearLayout>
+</LinearLayout>
