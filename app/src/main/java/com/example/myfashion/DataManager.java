@@ -1,7 +1,6 @@
 package com.example.myfashion;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,17 +11,17 @@ public class DataManager {
     private List<Outfit> outfitList;
     private List<Post> communityPosts;
 
-    // --- 现有字段 ---
     private String currentGender = "Female";
     private String loggedInUser = null;
 
-    // --- 个人信息字段 ---
     private String nickname = "点击设置昵称";
     private String userSelfGender = "保密";
 
-    // 【新增】头像和生日
-    private int avatarResId = R.mipmap.ic_launcher_round; // 默认头像
-    private String birthday; // 生日字符串 (YYYY-MM-DD)
+    // --- 头像相关 ---
+    private int avatarResId = R.mipmap.ic_launcher_round; // 默认内置头像ID
+    private String customAvatarUri = null; // 【新增】自定义头像的路径 (URI字符串)
+
+    private String birthday;
 
     private Map<String, String> userDatabase;
     private Map<String, String> phoneDatabase;
@@ -31,17 +30,14 @@ public class DataManager {
         initUserData();
         initOutfitData();
         initCommunityData();
-
-        // 【新增】初始化时生成一个随机生日
         this.birthday = generateRandomBirthday();
     }
 
-    // 生成 1990年~2005年 之间的随机日期
     private String generateRandomBirthday() {
         Random rnd = new Random();
-        int year = 1990 + rnd.nextInt(16); // 1990-2005
+        int year = 1990 + rnd.nextInt(16);
         int month = 1 + rnd.nextInt(12);
-        int day = 1 + rnd.nextInt(28); // 偷懒只生成到28号，防止2月报错
+        int day = 1 + rnd.nextInt(28);
         return year + "-" + (month < 10 ? "0" + month : month) + "-" + (day < 10 ? "0" + day : day);
     }
 
@@ -96,7 +92,6 @@ public class DataManager {
         return true;
     }
 
-    // --- Getter / Setter ---
     public List<Outfit> getOutfits() {
         List<Outfit> result = new ArrayList<>();
         for (Outfit o : outfitList) {
@@ -125,10 +120,17 @@ public class DataManager {
     public String getUserSelfGender() { return userSelfGender; }
     public void setUserSelfGender(String gender) { this.userSelfGender = gender; }
 
-    // 【新增】头像和生日的 Getter/Setter
+    // --- Getter/Setter 修改 ---
     public int getAvatarResId() { return avatarResId; }
-    public void setAvatarResId(int avatarResId) { this.avatarResId = avatarResId; }
+    public void setAvatarResId(int avatarResId) {
+        this.avatarResId = avatarResId;
+        this.customAvatarUri = null; // 如果设置了内置头像，就清空自定义头像
+    }
 
     public String getBirthday() { return birthday; }
     public void setBirthday(String birthday) { this.birthday = birthday; }
+
+    // 【新增】自定义头像的 Getter/Setter
+    public String getCustomAvatarUri() { return customAvatarUri; }
+    public void setCustomAvatarUri(String customAvatarUri) { this.customAvatarUri = customAvatarUri; }
 }
