@@ -133,4 +133,21 @@ public class DataManager {
     // 【新增】自定义头像的 Getter/Setter
     public String getCustomAvatarUri() { return customAvatarUri; }
     public void setCustomAvatarUri(String customAvatarUri) { this.customAvatarUri = customAvatarUri; }
+
+    // 添加新帖子 (发帖用)
+    public void addNewPost(String content, String imageUri) {
+        // 获取当前登录用户，如果没有则默认为 "我"
+        String user = getNickname();
+        Post newPost = new Post(user, content, imageUri, 0);
+        //在这个列表的开头添加，这样新帖子就在最上面
+        communityPosts.add(0, newPost);
+    }
+
+    // 根据索引获取帖子 (用于详情页)
+    public Post getPostByIndex(int index) {
+        if (index >= 0 && index < communityPosts.size()) {
+            return communityPosts.get(index);
+        }
+        return null;
+    }
 }

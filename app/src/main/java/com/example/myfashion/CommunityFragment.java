@@ -1,10 +1,10 @@
 package com.example.myfashion;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -29,40 +29,35 @@ public class CommunityFragment extends Fragment {
 
         // 1. 初始化 RecyclerView
         RecyclerView rv = view.findViewById(R.id.rv_community);
-        rv.setLayoutManager(new LinearLayoutManager(getContext())); // 线性布局
+        rv.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // 2. 获取数据并设置适配器
-        // 注意：请确保 DataManager 中已经添加了 getCommunityPosts() 方法
+        // 2. 获取数据
         List<Post> posts = DataManager.getInstance().getCommunityPosts();
-        adapter = new CommunityAdapter(posts);
+
+        // 3. 初始化适配器 (传入点击监听器)
+        adapter = new CommunityAdapter(posts, position -> {
+            // 点击事件：跳转到帖子详情页
+            Intent intent = new Intent(getActivity(), PostDetailActivity.class);
+            // 传递帖子的索引，详情页根据索引去 DataManager 查数据
+            intent.putExtra("post_index", position);
+            startActivity(intent);
+        });
         rv.setAdapter(adapter);
 
-        // 3. 处理悬浮按钮点击 (模拟发帖)
+        // 4. 处理悬浮按钮点击 (跳转发帖)
         FloatingActionButton fab = view.findViewById(R.id.fab_add);
         fab.setOnClickListener(v -> {
-            String currentUser = DataManager.getInstance().getLoggedInUser();
-            if (currentUser == null) currentUser = "我";
-
-            // 创建一条新帖子 (插到列表最前面)
-            Post newPost = new Post(currentUser, "刚刚分享了一个超棒的穿搭想法！✨", "", 0);
-
-            // 调用 DataManager 添加数据
-            DataManager.getInstance().addPost(newPost);
-
-            // 刷新列表
-            adapter.updateData(DataManager.getInstance().getCommunityPosts());
-
-            // 滚动到顶部
-            rv.smoothScrollToPosition(0);
-
-            Toast.makeText(getContext(), "发布成功！", Toast.LENGTH_SHORT).show();
+            // 跳转到发帖页面
+            Intent intent = new Intent(getActivity(), CreatePostActivity.class);
+            startActivity(intent);
         });
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        // 每次回到页面刷新数据
+        // 5. 每次回到页面刷新数据
+        // (比如在详情页点赞了，或者发了新帖，这里需要更新列表显示)
         if (adapter != null) {
             adapter.updateData(DataManager.getInstance().getCommunityPosts());
         }
