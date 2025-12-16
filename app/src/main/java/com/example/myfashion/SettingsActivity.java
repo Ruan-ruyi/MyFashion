@@ -1,6 +1,7 @@
 package com.example.myfashion;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
@@ -11,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import java.util.Calendar;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -21,8 +23,8 @@ public class SettingsActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
 
-        // 初始化菜单项
-        setupItem(R.id.row_preference, "穿搭偏好 (看男装/女装)");
+        // 初始化行
+        setupItem(R.id.row_preference, "穿搭偏好");
         setupItem(R.id.row_avatar, "修改头像");
         setupItem(R.id.row_nickname, "修改昵称");
         setupItem(R.id.row_birthday, "设置生日");
@@ -31,16 +33,17 @@ public class SettingsActivity extends AppCompatActivity {
         // 1. 穿搭偏好
         findViewById(R.id.row_preference).setOnClickListener(v -> showPreferenceDialog());
 
-        // 2. 修改昵称 (核心逻辑)
+        // 2. 修改昵称
         findViewById(R.id.row_nickname).setOnClickListener(v -> showEditNicknameDialog());
 
-        // 3. 修改性别 (核心逻辑)
+        // 3. 修改性别
         findViewById(R.id.row_gender).setOnClickListener(v -> showGenderDialog());
 
-        // 4. 其他暂未实现的功能
-        View.OnClickListener demoListener = v -> Toast.makeText(this, "功能开发中...", Toast.LENGTH_SHORT).show();
-        findViewById(R.id.row_avatar).setOnClickListener(demoListener);
-        findViewById(R.id.row_birthday).setOnClickListener(demoListener);
+        // 4. 【新增】修改头像
+        findViewById(R.id.row_avatar).setOnClickListener(v -> showAvatarDialog());
+
+        // 5. 【新增】修改生日
+        findViewById(R.id.row_birthday).setOnClickListener(v -> showBirthdayDialog());
 
         // 退出登录
         Button btnLogout = findViewById(R.id.btn_logout);
@@ -51,7 +54,7 @@ public class SettingsActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // 关键点：进入页面时，刷新显示，从 DataManager 读取最新数据
+        // 刷新显示
         refreshUI();
     }
 
@@ -63,46 +66,51 @@ public class SettingsActivity extends AppCompatActivity {
         ivIcon.setVisibility(View.GONE);
     }
 
-    // 刷新界面文字 (从 DataManager 获取数据)
     private void refreshUI() {
-        // 1. 刷新偏好
+        // 偏好
         TextView tvPref = findViewById(R.id.row_preference).findViewById(R.id.tv_value);
         String pref = DataManager.getInstance().getGender();
         if ("Female".equals(pref)) tvPref.setText("只看女装");
         else if ("Male".equals(pref)) tvPref.setText("只看男装");
         else tvPref.setText("全部显示");
 
-        // 2. 【关键】刷新昵称
+        // 昵称
         TextView tvNick = findViewById(R.id.row_nickname).findViewById(R.id.tv_value);
         tvNick.setText(DataManager.getInstance().getNickname());
 
-        // 3. 【关键】刷新我的性别
+        // 性别
         TextView tvGender = findViewById(R.id.row_gender).findViewById(R.id.tv_value);
         tvGender.setText(DataManager.getInstance().getUserSelfGender());
+
+        // 【新增】生日回显
+        TextView tvBirthday = findViewById(R.id.row_birthday).findViewById(R.id.tv_value);
+        tvBirthday.setText(DataManager.getInstance().getBirthday());
+
+        // 【新增】头像文字提示 (由于头像在列表里只显示文字，我们在 Profile 页显示图片)
+        TextView tvAvatar = findViewById(R.id.row_avatar).findViewById(R.id.tv_value);
+        tvAvatar.setText("点击修改");
     }
 
     // --- 弹窗逻辑 ---
 
-    // 1. 偏好设置弹窗
+    // 1. 偏好
     private void showPreferenceDialog() {
         String[] options = {"只看女装", "只看男装", "全部显示"};
         String[] values = {"Female", "Male", "All"};
         new AlertDialog.Builder(this)
                 .setTitle("首页显示内容")
                 .setItems(options, (dialog, which) -> {
-                    DataManager.getInstance().setGender(values[which]); // 保存到 DataManager
+                    DataManager.getInstance().setGender(values[which]);
                     refreshUI();
-                    Toast.makeText(this, "首页内容已更新", Toast.LENGTH_SHORT).show();
                 })
                 .show();
     }
 
-    // 2. 修改昵称弹窗
+    // 2. 昵称
     private void showEditNicknameDialog() {
         EditText input = new EditText(this);
         input.setHint("请输入新昵称");
-        input.setText(DataManager.getInstance().getNickname()); // 显示当前昵称
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setText(DataManager.getInstance().getNickname());
 
         new AlertDialog.Builder(this)
                 .setTitle("修改昵称")
@@ -110,24 +118,69 @@ public class SettingsActivity extends AppCompatActivity {
                 .setPositiveButton("保存", (dialog, which) -> {
                     String newName = input.getText().toString();
                     if (!newName.isEmpty()) {
-                        DataManager.getInstance().setNickname(newName); // 【关键】保存到 DataManager
-                        refreshUI(); // 刷新界面
-                        Toast.makeText(this, "昵称已保存", Toast.LENGTH_SHORT).show();
+                        DataManager.getInstance().setNickname(newName);
+                        refreshUI();
                     }
                 })
                 .setNegativeButton("取消", null)
                 .show();
     }
 
-    // 3. 修改性别弹窗
+    // 3. 性别
     private void showGenderDialog() {
         String[] options = {"男", "女", "保密"};
         new AlertDialog.Builder(this)
                 .setTitle("选择您的性别")
                 .setItems(options, (dialog, which) -> {
-                    DataManager.getInstance().setUserSelfGender(options[which]); // 【关键】保存到 DataManager
-                    refreshUI(); // 刷新界面
+                    DataManager.getInstance().setUserSelfGender(options[which]);
+                    refreshUI();
                 })
                 .show();
+    }
+
+    // 4. 【新增】头像选择器 (内置 8 个预设头像)
+    private void showAvatarDialog() {
+        // 定义预设的头像名字和对应的图片资源ID
+        String[] names = {"默认头像", "时尚女装", "商务男装", "街头潮男", "优雅晚礼", "秋季风衣", "度假风", "简约白T"};
+        final int[] resIds = {
+                R.mipmap.ic_launcher_round,
+                R.drawable.o1,
+                R.drawable.o2,
+                R.drawable.o3,
+                R.drawable.o4,
+                R.drawable.o5,
+                R.drawable.o7,
+                R.drawable.o8
+        };
+
+        new AlertDialog.Builder(this)
+                .setTitle("选择头像")
+                .setItems(names, (dialog, which) -> {
+                    // 保存选中的头像资源ID
+                    DataManager.getInstance().setAvatarResId(resIds[which]);
+                    refreshUI();
+                    Toast.makeText(this, "头像已更新，去【我的】页面查看效果吧！", Toast.LENGTH_SHORT).show();
+                })
+                .show();
+    }
+
+    // 5. 【新增】生日选择器 (DatePicker)
+    private void showBirthdayDialog() {
+        Calendar c = Calendar.getInstance();
+        // 尝试解析当前保存的生日，如果格式不对就用当前日期
+        String currentBirthday = DataManager.getInstance().getBirthday();
+        try {
+            String[] parts = currentBirthday.split("-");
+            c.set(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]) - 1, Integer.parseInt(parts[2]));
+        } catch (Exception e) {
+            // 解析失败，忽略
+        }
+
+        new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            String date = year + "-" + (month + 1) + "-" + dayOfMonth;
+            DataManager.getInstance().setBirthday(date);
+            refreshUI();
+            Toast.makeText(this, "生日已更新", Toast.LENGTH_SHORT).show();
+        }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
     }
 }
