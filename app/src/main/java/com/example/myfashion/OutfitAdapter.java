@@ -8,24 +8,25 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
-import java.util.ArrayList;
+// 【新增】引入这两个必要的包
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
+
 import java.util.List;
 
 public class OutfitAdapter extends RecyclerView.Adapter<OutfitAdapter.ViewHolder> {
     private List<Outfit> mList;
-    // 1. 新增监听器接口
     private OnItemClickListener mListener;
 
     public interface OnItemClickListener {
         void onItemClick(Outfit outfit);
     }
 
-    public OutfitAdapter(List<Outfit> list, OnItemClickListener listener) { // 修改构造函数
+    public OutfitAdapter(List<Outfit> list, OnItemClickListener listener) {
         this.mList = list;
         this.mListener = listener;
     }
 
-    // 更新数据的方法
     public void updateData(List<Outfit> newList) {
         this.mList = newList;
         notifyDataSetChanged();
@@ -38,23 +39,33 @@ public class OutfitAdapter extends RecyclerView.Adapter<OutfitAdapter.ViewHolder
         return new ViewHolder(view);
     }
 
+    // --- 👇 这里是你要修改的核心部分 👇 ---
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Outfit outfit = mList.get(position);
         holder.tvTitle.setText(outfit.getTitle());
 
-        // 修改点：load() 方法现在直接接收 int 类型的资源ID，Glide 能自动识别
+        // 【关键修改】配置 Glide 选项：禁用缓存
+        // 这样可以强制 Glide 每次都去读最新的资源 ID，防止 o1 显示成 o2 的情况
+        RequestOptions options = new RequestOptions()
+                .placeholder(R.drawable.ic_launcher_background) // 加载中显示
+                .error(R.drawable.ic_launcher_foreground)       // 加载失败显示
+                .diskCacheStrategy(DiskCacheStrategy.NONE)      // ❌ 禁用磁盘缓存
+                .skipMemoryCache(true);                         // ❌ 跳过内存缓存
+
         Glide.with(holder.itemView.getContext())
-                .load(outfit.getImageResId()) // 这里改成了 getImageResId()
-                .placeholder(R.drawable.ic_launcher_background)
+                .load(outfit.getImageResId()) // 加载本地资源 ID
+                .apply(options)               // 应用上面的防缓存配置
                 .into(holder.ivImage);
 
+        // 点击事件
         holder.itemView.setOnClickListener(v -> {
             if (mListener != null) {
                 mListener.onItemClick(outfit);
             }
         });
     }
+    // --- 👆 修改结束 👆 ---
 
     @Override
     public int getItemCount() {
