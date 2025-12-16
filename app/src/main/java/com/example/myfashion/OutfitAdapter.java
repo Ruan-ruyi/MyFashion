@@ -8,10 +8,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
-// 【新增】引入这两个必要的包
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
-
 import java.util.List;
 
 public class OutfitAdapter extends RecyclerView.Adapter<OutfitAdapter.ViewHolder> {
@@ -39,33 +37,29 @@ public class OutfitAdapter extends RecyclerView.Adapter<OutfitAdapter.ViewHolder
         return new ViewHolder(view);
     }
 
-    // --- 👇 这里是你要修改的核心部分 👇 ---
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Outfit outfit = mList.get(position);
         holder.tvTitle.setText(outfit.getTitle());
 
-        // 【关键修改】配置 Glide 选项：禁用缓存
-        // 这样可以强制 Glide 每次都去读最新的资源 ID，防止 o1 显示成 o2 的情况
+        // 【同步修复】列表页也禁用缓存，保持一致
         RequestOptions options = new RequestOptions()
-                .placeholder(R.drawable.ic_launcher_background) // 加载中显示
-                .error(R.drawable.ic_launcher_foreground)       // 加载失败显示
-                .diskCacheStrategy(DiskCacheStrategy.NONE)      // ❌ 禁用磁盘缓存
-                .skipMemoryCache(true);                         // ❌ 跳过内存缓存
+                .placeholder(R.drawable.ic_launcher_background)
+                .error(R.drawable.ic_launcher_foreground)
+                .diskCacheStrategy(DiskCacheStrategy.NONE) // ❌ 禁用磁盘缓存
+                .skipMemoryCache(true);                    // ❌ 跳过内存缓存
 
         Glide.with(holder.itemView.getContext())
-                .load(outfit.getImageResId()) // 加载本地资源 ID
-                .apply(options)               // 应用上面的防缓存配置
+                .load(outfit.getImageResId())
+                .apply(options)
                 .into(holder.ivImage);
 
-        // 点击事件
         holder.itemView.setOnClickListener(v -> {
             if (mListener != null) {
                 mListener.onItemClick(outfit);
             }
         });
     }
-    // --- 👆 修改结束 👆 ---
 
     @Override
     public int getItemCount() {
