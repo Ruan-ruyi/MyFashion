@@ -23,8 +23,8 @@ import java.util.List;
 public class TryOnFragment extends Fragment {
     private ImageView ivOrigin, ivGarment, ivResult;
     private ProgressBar loading;
-    private Outfit selectedOutfit = null; // 当前选中的服装
-    private Uri userImageUri = null;      // 用户上传的照片URI
+    private Outfit selectedOutfit = null;
+    private Uri userImageUri = null;
 
     // 图片选择器
     private final ActivityResultLauncher<String> pickImage = registerForActivityResult(
@@ -53,14 +53,11 @@ public class TryOnFragment extends Fragment {
         Button btnSelectGarment = view.findViewById(R.id.btn_select_garment);
         Button btnStart = view.findViewById(R.id.btn_start);
 
-        // 1. 上传照片
         btnUpload.setOnClickListener(v -> pickImage.launch("image/*"));
-
-        // 2. 选择衣柜中的服装
         btnSelectGarment.setOnClickListener(v -> showWardrobeDialog());
 
-        // 3. 开始换装
         btnStart.setOnClickListener(v -> {
+            // 校验
             if (userImageUri == null) {
                 Toast.makeText(getContext(), "请先上传本人照片", Toast.LENGTH_SHORT).show();
                 return;
@@ -72,52 +69,57 @@ public class TryOnFragment extends Fragment {
 
             loading.setVisibility(View.VISIBLE);
 
-            // 传递用户图片URI字符串和选中的服装资源ID(转字符串)给AI服务
-            // 实际项目中可能需要将资源图片转为Base64或上传后的URL
-            String garmentIdStr = String.valueOf(selectedOutfit.getImageResId());
+            // 【注意】这里是关键点！
+            // 真实的 App 需要先将 userImageUri 上传到服务器拿到 URL。
+            // 同样的，selectedOutfit 里的资源 ID (R.drawable.xx) 也需要对应一个公网 URL。
 
-            AIService.tryOn(userImageUri.toString(), garmentIdStr, new AIService.AICallback() {
+            // 为了演示 API 能跑通，这里我们使用 Python 脚本里的示例公网 URL
+            // 实际上你应该传:
+            // String userUrl = uploadImageAndGetUrl(userImageUri);
+            // String clothUrl = selectedOutfit.getNetworkUrl();
+
+            String demoUserUrl = "https://ark-project.tos-cn-beijing.volces.com/doc_image/seedream4_imagesToimage_1.png";
+            String demoClothUrl = "https://ark-project.tos-cn-beijing.volces.com/doc_image/seedream4_imagesToimage_2.png";
+
+            Toast.makeText(getContext(), "正在请求云端 AI...", Toast.LENGTH_LONG).show();
+
+            // 调用我们写好的 AIService
+            AIService.tryOn(demoUserUrl, demoClothUrl, new AIService.AICallback() {
                 @Override
                 public void onSuccess(String resultUrl) {
                     loading.setVisibility(View.GONE);
-                    Glide.with(TryOnFragment.this).load(resultUrl).into(ivResult);
-                    Toast.makeText(getContext(), "换装成功", Toast.LENGTH_SHORT).show();
+                    // 使用 Glide 加载返回的 URL
+                    Glide.with(TryOnFragment.this)
+                            .load(resultUrl)
+                            .into(ivResult);
+                    Toast.makeText(getContext(), "换装成功！", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onError(String msg) {
                     loading.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "失败: " + msg, Toast.LENGTH_LONG).show();
                 }
             });
         });
     }
 
-    // 显示衣柜选择弹窗
+    // 显示衣柜选择弹窗 (保持不变)
     private void showWardrobeDialog() {
         Dialog dialog = new Dialog(getContext());
-        // 复用 activity_my_post_list 的布局，因为它包含标题栏和RecyclerView
-        // 如果想更美观，可以新建一个 dialog_select_outfit.xml
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.activity_my_post_list, null);
         dialog.setContentView(dialogView);
-
-        // 设置弹窗宽高等属性
         Window window = dialog.getWindow();
         if (window != null) {
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         }
-
         TextView tvTitle = dialogView.findViewById(R.id.tv_title);
         TextView tvEmpty = dialogView.findViewById(R.id.tv_empty);
         RecyclerView rv = dialogView.findViewById(R.id.rv_list);
         View btnBack = dialogView.findViewById(R.id.btn_back);
-
         tvTitle.setText("选择穿搭");
         btnBack.setOnClickListener(v -> dialog.dismiss());
-
-        // 获取收藏数据
         List<Outfit> favoriteList = DataManager.getInstance().getMyFavoriteOutfits();
-
         if (favoriteList == null || favoriteList.isEmpty()) {
             tvEmpty.setVisibility(View.VISIBLE);
             tvEmpty.setText("衣柜空空如也，快去收藏吧！");
@@ -125,21 +127,15 @@ public class TryOnFragment extends Fragment {
         } else {
             tvEmpty.setVisibility(View.GONE);
             rv.setVisibility(View.VISIBLE);
-
-            // 使用网格布局
             rv.setLayoutManager(new GridLayoutManager(getContext(), 2));
-
             OutfitAdapter adapter = new OutfitAdapter(favoriteList, outfit -> {
-                // 选中回调
                 selectedOutfit = outfit;
-                // 更新UI显示选中的衣服
-                ivGarment.setPadding(0,0,0,0); // 清除padding以完整显示
+                ivGarment.setPadding(0,0,0,0);
                 Glide.with(this).load(outfit.getImageResId()).into(ivGarment);
                 dialog.dismiss();
             });
             rv.setAdapter(adapter);
         }
-
         dialog.show();
     }
 }
