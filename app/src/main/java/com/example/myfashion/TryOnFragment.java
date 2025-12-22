@@ -18,21 +18,23 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+import java.io.File;
 import java.util.List;
 
 public class TryOnFragment extends Fragment {
     private ImageView ivOrigin, ivGarment, ivResult;
     private ProgressBar loading;
-    private Outfit selectedOutfit = null;
-    private Uri userImageUri = null;
+    private Outfit selectedOutfit = null; // 选中的衣服
+    private Uri userImageUri = null;      // 用户上传的照片Uri
 
-    // 图片选择器
+    // 相册选择器
     private final ActivityResultLauncher<String> pickImage = registerForActivityResult(
             new ActivityResultContracts.GetContent(),
             uri -> {
                 if (uri != null) {
                     userImageUri = uri;
                     ivOrigin.setImageURI(uri);
+                    ivResult.setImageDrawable(null); // 清空旧结果
                 }
             }
     );
@@ -56,8 +58,8 @@ public class TryOnFragment extends Fragment {
         btnUpload.setOnClickListener(v -> pickImage.launch("image/*"));
         btnSelectGarment.setOnClickListener(v -> showWardrobeDialog());
 
+        // --- 核心逻辑：点击开始换装 ---
         btnStart.setOnClickListener(v -> {
-            // 校验
             if (userImageUri == null) {
                 Toast.makeText(getContext(), "请先上传本人照片", Toast.LENGTH_SHORT).show();
                 return;
@@ -67,59 +69,108 @@ public class TryOnFragment extends Fragment {
                 return;
             }
 
+            // 1. 界面显示加载中
             loading.setVisibility(View.VISIBLE);
+            Toast.makeText(getContext(), "正在处理图片...", Toast.LENGTH_SHORT).show();
 
-            // 【注意】这里是关键点！
-            // 真实的 App 需要先将 userImageUri 上传到服务器拿到 URL。
-            // 同样的，selectedOutfit 里的资源 ID (R.drawable.xx) 也需要对应一个公网 URL。
+            // 2. 将图片转为 File
+            File userFile = FileUtil.uriToFile(getContext(), userImageUri);
+            File clothFile = FileUtil.drawableToFile(getContext(), selectedOutfit.getImageResId());
 
-            // 为了演示 API 能跑通，这里我们使用 Python 脚本里的示例公网 URL
-            // 实际上你应该传:
-            // String userUrl = uploadImageAndGetUrl(userImageUri);
-            // String clothUrl = selectedOutfit.getNetworkUrl();
+            if (userFile == null || clothFile == null) {
+                loading.setVisibility(View.GONE);
+                Toast.makeText(getContext(), "图片转换失败，请重试", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            String demoUserUrl = "https://ark-project.tos-cn-beijing.volces.com/doc_image/seedream4_imagesToimage_1.png";
-            String demoClothUrl = "https://ark-project.tos-cn-beijing.volces.com/doc_image/seedream4_imagesToimage_2.png";
+            // 3. 开始链式上传 (人像 -> 衣服 -> AI)
 
-            Toast.makeText(getContext(), "正在请求云端 AI...", Toast.LENGTH_LONG).show();
-
-            // 调用我们写好的 AIService
-            AIService.tryOn(demoUserUrl, demoClothUrl, new AIService.AICallback() {
+            // Step A: 上传人像
+            ImageUploader.upload(userFile, new ImageUploader.UploadCallback() {
                 @Override
-                public void onSuccess(String resultUrl) {
-                    loading.setVisibility(View.GONE);
-                    // 使用 Glide 加载返回的 URL
-                    Glide.with(TryOnFragment.this)
-                            .load(resultUrl)
-                            .into(ivResult);
-                    Toast.makeText(getContext(), "换装成功！", Toast.LENGTH_SHORT).show();
+                public void onSuccess(String userOnlineUrl) {
+                    if (getActivity() == null) return;
+                    getActivity().runOnUiThread(() ->
+                            Toast.makeText(getContext(), "人像上传成功，正在上传服装...", Toast.LENGTH_SHORT).show()
+                    );
+
+                    // Step B: 上传服装
+                    ImageUploader.upload(clothFile, new ImageUploader.UploadCallback() {
+                        @Override
+                        public void onSuccess(String clothOnlineUrl) {
+                            if (getActivity() == null) return;
+                            getActivity().runOnUiThread(() ->
+                                    Toast.makeText(getContext(), "正在请求 AI 生成，请耐心等待...", Toast.LENGTH_LONG).show()
+                            );
+
+                            // Step C: 调用 AI 换装
+                            AIService.tryOn(userOnlineUrl, clothOnlineUrl, new AIService.AICallback() {
+                                @Override
+                                public void onSuccess(String resultUrl) {
+                                    if (getActivity() == null) return;
+                                    getActivity().runOnUiThread(() -> {
+                                        loading.setVisibility(View.GONE);
+                                        // 显示结果
+                                        Glide.with(TryOnFragment.this).load(resultUrl).into(ivResult);
+                                        Toast.makeText(getContext(), "换装成功！", Toast.LENGTH_SHORT).show();
+                                    });
+                                }
+
+                                @Override
+                                public void onError(String msg) {
+                                    if (getActivity() == null) return;
+                                    getActivity().runOnUiThread(() -> {
+                                        loading.setVisibility(View.GONE);
+                                        Toast.makeText(getContext(), "AI 生成失败: " + msg, Toast.LENGTH_LONG).show();
+                                    });
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onError(String msg) {
+                            if (getActivity() == null) return;
+                            getActivity().runOnUiThread(() -> {
+                                loading.setVisibility(View.GONE);
+                                Toast.makeText(getContext(), "服装上传失败: " + msg, Toast.LENGTH_SHORT).show();
+                            });
+                        }
+                    });
                 }
 
                 @Override
                 public void onError(String msg) {
-                    loading.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "失败: " + msg, Toast.LENGTH_LONG).show();
+                    if (getActivity() == null) return;
+                    getActivity().runOnUiThread(() -> {
+                        loading.setVisibility(View.GONE);
+                        Toast.makeText(getContext(), "人像上传失败: " + msg, Toast.LENGTH_SHORT).show();
+                    });
                 }
             });
         });
     }
 
-    // 显示衣柜选择弹窗 (保持不变)
+    // 显示衣柜弹窗
     private void showWardrobeDialog() {
         Dialog dialog = new Dialog(getContext());
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.activity_my_post_list, null);
         dialog.setContentView(dialogView);
+
         Window window = dialog.getWindow();
         if (window != null) {
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         }
+
         TextView tvTitle = dialogView.findViewById(R.id.tv_title);
         TextView tvEmpty = dialogView.findViewById(R.id.tv_empty);
         RecyclerView rv = dialogView.findViewById(R.id.rv_list);
         View btnBack = dialogView.findViewById(R.id.btn_back);
-        tvTitle.setText("选择穿搭");
+
+        tvTitle.setText("请选择一件服装");
         btnBack.setOnClickListener(v -> dialog.dismiss());
+
         List<Outfit> favoriteList = DataManager.getInstance().getMyFavoriteOutfits();
+
         if (favoriteList == null || favoriteList.isEmpty()) {
             tvEmpty.setVisibility(View.VISIBLE);
             tvEmpty.setText("衣柜空空如也，快去收藏吧！");
@@ -128,10 +179,11 @@ public class TryOnFragment extends Fragment {
             tvEmpty.setVisibility(View.GONE);
             rv.setVisibility(View.VISIBLE);
             rv.setLayoutManager(new GridLayoutManager(getContext(), 2));
+
             OutfitAdapter adapter = new OutfitAdapter(favoriteList, outfit -> {
                 selectedOutfit = outfit;
-                ivGarment.setPadding(0,0,0,0);
                 Glide.with(this).load(outfit.getImageResId()).into(ivGarment);
+                ivGarment.setPadding(0,0,0,0);
                 dialog.dismiss();
             });
             rv.setAdapter(adapter);

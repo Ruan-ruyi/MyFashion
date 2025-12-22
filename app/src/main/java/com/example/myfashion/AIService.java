@@ -17,14 +17,15 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class AIService {
-    // 【重要】请将此处替换为你申请的真实 API Key
+    // 【请修改】这里填入火山引擎/豆包的 API Key (Bearer Token)
     private static final String API_KEY = "sk-ByhFGiFVuRTWPTwgcOYM23LLKRnnX29cQSEFLLRbPPgimLCX";
+
+    // 豆包图生图 API 地址
     private static final String API_URL = "https://www.dmxapi.cn/v1/images/generations";
 
-    // 各种超时设置，AI 生成图片比较慢，建议设长一点
     private static final OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(120, TimeUnit.SECONDS) // 生成图片很慢，建议设为 120秒
             .writeTimeout(60, TimeUnit.SECONDS)
             .build();
 
@@ -33,27 +34,20 @@ public class AIService {
         void onError(String msg);
     }
 
-    /**
-     * 发起换装请求
-     * @param userImgUrl  图1：用户照片的公网 URL (必须是 http/https 开头)
-     * @param garmentImgUrl 图2：服装照片的公网 URL (必须是 http/https 开头)
-     * @param callback    回调
-     */
     public static void tryOn(String userImgUrl, String garmentImgUrl, AICallback callback) {
-        // 主线程 Handler，用于将结果切回主线程更新 UI
         Handler mainHandler = new Handler(Looper.getMainLooper());
 
-        // 1. 构建 JSON 请求体
+        // 1. 构建 JSON 参数
         JSONObject jsonBody = new JSONObject();
         try {
-            jsonBody.put("model", "doubao-seedream-4-5-251128"); // 使用 Python 代码中的最新模型
-            jsonBody.put("prompt", "将图1的服装换为图2的服装"); // 核心提示词
+            jsonBody.put("model", "doubao-seedream-4-5-251128"); // 模型版本
+            jsonBody.put("prompt", "将图1的服装换为图2的服装"); // 提示词
             jsonBody.put("size", "4K"); // 分辨率
 
-            // 组装 image 数组
+            // 图片数组: [用户图, 衣服图]
             JSONArray images = new JSONArray();
-            images.put(userImgUrl);    // 图1
-            images.put(garmentImgUrl); // 图2
+            images.put(userImgUrl);
+            images.put(garmentImgUrl);
             jsonBody.put("image", images);
 
         } catch (JSONException e) {
@@ -61,7 +55,7 @@ public class AIService {
             return;
         }
 
-        // 2. 创建 HTTP 请求
+        // 2. 创建请求
         RequestBody body = RequestBody.create(
                 jsonBody.toString(),
                 MediaType.get("application/json; charset=utf-8")
@@ -74,7 +68,7 @@ public class AIService {
                 .post(body)
                 .build();
 
-        // 3. 发送异步请求
+        // 3. 发送请求
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -92,8 +86,7 @@ public class AIService {
                 }
 
                 try {
-                    // 4. 解析返回的 JSON
-                    // 结构：{ "data": [ { "url": "..." } ], ... }
+                    // 解析结果
                     JSONObject respJson = new JSONObject(responseStr);
                     JSONArray dataArray = respJson.optJSONArray("data");
 
@@ -101,9 +94,8 @@ public class AIService {
                         String resultUrl = dataArray.getJSONObject(0).getString("url");
                         mainHandler.post(() -> callback.onSuccess(resultUrl));
                     } else {
-                        mainHandler.post(() -> callback.onError("未返回图片 URL"));
+                        mainHandler.post(() -> callback.onError("未返回图片数据"));
                     }
-
                 } catch (JSONException e) {
                     mainHandler.post(() -> callback.onError("解析响应失败: " + e.getMessage()));
                 }
